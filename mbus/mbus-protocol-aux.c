@@ -787,8 +787,8 @@ int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real,
         MBUS_DEBUG("coding = 0x%02X \n", record->drh.dib.dif);
         
         // ignore extension bit
-        vif = (record->drh.vib.vif & 0x7F);       
-        vife = (record->drh.vib.vife[0] & 0x7F);
+        vif = (record->drh.vib.vif & MBUS_DIB_VIF_WITHOUT_EXTENSION);       
+        vife = (record->drh.vib.vife[0] & MBUS_DIB_VIF_WITHOUT_EXTENSION);
 
         switch (record->drh.dib.dif & 0x0F)
         {
@@ -1004,7 +1004,7 @@ mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **
             return -1;
         }
 
-        int code = ((vib->vife[0]) & 0x7f) | 0x100;
+        int code = ((vib->vife[0]) & MBUS_DIB_VIF_WITHOUT_EXTENSION) | 0x100;
         if (mbus_vif_unit_normalize(code, value, unit_out, value_out, quantity_out) != 0)
         {
             MBUS_ERROR("%s: Error mbus_vif_unit_normalize\n", __PRETTY_FUNCTION__);
@@ -1019,7 +1019,7 @@ mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **
                 return -1;
             }
             
-            int code = ((vib->vife[0]) & 0x7f) | 0x200;
+            int code = ((vib->vife[0]) & MBUS_DIB_VIF_WITHOUT_EXTENSION) | 0x200;
             if (0 != mbus_vif_unit_normalize(code, value, unit_out, value_out, quantity_out))
             {
                 MBUS_ERROR("%s: Error mbus_vif_unit_normalize\n", __PRETTY_FUNCTION__);
@@ -1036,7 +1036,7 @@ mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **
         }
         else
         {
-            int code = (vib->vif) & 0x7f;
+            int code = (vib->vif) & MBUS_DIB_VIF_WITHOUT_EXTENSION;
             if (0 != mbus_vif_unit_normalize(code, value, unit_out, value_out, quantity_out))
             {
                 MBUS_ERROR("%s: Error mbus_vif_unit_normalize\n", __PRETTY_FUNCTION__);
@@ -1146,6 +1146,13 @@ mbus_parse_fixed_record(char status_byte, char medium_unit, u_char *data)
 
     /* shared/static memory - get own copy */
     record->function_medium = strdup(mbus_data_fixed_function((int)status_byte));  /* stored / actual */
+    
+    if (record->function_medium == NULL)
+    {
+        MBUS_ERROR("%s: memory allocation error\n", __PRETTY_FUNCTION__);
+        mbus_record_free(record);
+        return NULL;
+    }
 
     long value = 0;
     if ((status_byte & MBUS_DATA_FIXED_STATUS_FORMAT_MASK) == MBUS_DATA_FIXED_STATUS_FORMAT_BCD)
@@ -1191,15 +1198,23 @@ mbus_parse_variable_record(mbus_data_record *data)
         return NULL;
     }
  
-    if (data->drh.dib.dif == 0x0F || data->drh.dib.dif == 0x1F) /* MBUS_DIB_DIF_VENDOR_SPECIFIC */
+    if ((data->drh.dib.dif == MBUS_DIB_DIF_MANUFACTURER_SPECIFIC) || 
+        (data->drh.dib.dif == MBUS_DIB_DIF_MORE_RECORDS_FOLLOW)) /* MBUS_DIB_DIF_VENDOR_SPECIFIC */
     {
-        if (data->drh.dib.dif == 0x1F)
+        if (data->drh.dib.dif == MBUS_DIB_DIF_MORE_RECORDS_FOLLOW)
         {
             record->function_medium = strdup("More records follow");
         }
         else
         {
             record->function_medium = strdup("Manufacturer specific");
+        }
+        
+        if (record->function_medium == NULL)
+        {
+            MBUS_ERROR("%s: memory allocation error\n", __PRETTY_FUNCTION__);
+            mbus_record_free(record);
+            return NULL;
         }
     
         /* parsing of data not implemented yet
@@ -1227,6 +1242,14 @@ mbus_parse_variable_record(mbus_data_record *data)
     else
     {
         record->function_medium = strdup(mbus_data_record_function(data));
+        
+        if (record->function_medium == NULL)
+        {
+            MBUS_ERROR("%s: memory allocation error\n", __PRETTY_FUNCTION__);
+            mbus_record_free(record);
+            return NULL;
+        }
+        
         MBUS_DEBUG("record->function_medium = %s \n", record->function_medium);     
 
         if (mbus_variable_value_decode(data, &value_out_real, &value_out_str, &value_out_str_size) != 0)
@@ -1561,6 +1584,8 @@ int mbus_purge_frames(mbus_handle *handle)
 {
     int err, received;
     mbus_frame reply;
+    
+    memset((void *)&reply, 0, sizeof(mbus_frame));
 
     received = 0;
     while (1)
@@ -1687,6 +1712,61 @@ mbus_send_switch_baudrate_frame(mbus_handle * handle, int address, int baudrate)
     mbus_frame_free(frame);
     return retval;
 }
+
+//------------------------------------------------------------------------------
+// send a user data packet from master to slave: the packet resets
+// the application layer in the slave
+//------------------------------------------------------------------------------
+int
+mbus_send_application_reset_frame(mbus_handle * handle, int address, int subcode)
+{
+    int retval = 0;
+    mbus_frame *frame;
+    
+    if (mbus_is_primary_address(address) == 0)
+    {
+        MBUS_ERROR("%s: invalid address %d\n", __PRETTY_FUNCTION__, address);
+        return -1;
+    }
+    
+    if (subcode > 0xFF)
+    {
+    	MBUS_ERROR("%s: invalid subcode %d\n", __PRETTY_FUNCTION__, subcode);
+        return -1;
+    }
+    
+    frame = mbus_frame_new(MBUS_FRAME_TYPE_LONG);
+    
+    if (frame == NULL)
+    {
+        MBUS_ERROR("%s: failed to allocate mbus frame.\n", __PRETTY_FUNCTION__);
+        return -1;
+    }
+    
+    frame->control = MBUS_CONTROL_MASK_SND_UD | MBUS_CONTROL_MASK_DIR_M2S;
+    frame->address = address;
+    frame->control_information = MBUS_CONTROL_INFO_APPLICATION_RESET;
+    
+    if (subcode >= 0)
+    {
+        frame->data_size = 1;
+        frame->data[0] = (subcode & 0xFF);
+    }
+    else
+    {
+        frame->data_size = 0;
+    }
+
+    if (mbus_send_frame(handle, frame) == -1)
+    {
+        MBUS_ERROR("%s: failed to send mbus frame.\n", __PRETTY_FUNCTION__);
+        retval = -1;
+    }
+
+    mbus_frame_free(frame);
+    return retval;
+}
+
 
 //------------------------------------------------------------------------------
 // send a request packet to from master to slave
@@ -1955,7 +2035,8 @@ mbus_select_secondary_address(mbus_handle * handle, const char *mask)
                    mbus_error_str());
         return MBUS_PROBE_ERROR;
     }
-
+    
+    memset((void *)&reply, 0, sizeof(mbus_frame));
     ret = mbus_recv_frame(handle, &reply);
 
     if (ret == MBUS_RECV_RESULT_TIMEOUT)
@@ -2015,7 +2096,8 @@ mbus_probe_secondary_address(mbus_handle * handle, const char *mask, char *match
                        mbus_error_str());
             return MBUS_PROBE_ERROR;
         }
-
+        
+        memset((void *)&reply, 0, sizeof(mbus_frame));
         ret = mbus_recv_frame(handle, &reply);
 
         if (ret == MBUS_RECV_RESULT_TIMEOUT)

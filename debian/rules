@@ -9,14 +9,9 @@ export DH_VERBOSE=1
 override_dh_strip:
 	dh_strip --dbg-package=libmbus1-dbg
 
-#override_dh_autoreconf:
-#	autoheader \
-#		&& aclocal \
-#		&& libtoolize --ltdl --copy --force \
-#		&& automake --add-missing --copy \
-#		&& autoconf \
-#		&& ./configure
-#	dh_autoreconf
+override_dh_autoreconf:
+	mkdir m4
+	dh_autoreconf
 
 #override_dh_usrlocal:
 #	echo "dh_usrlocal does nothing"

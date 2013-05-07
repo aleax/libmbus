@@ -1,3 +1,33 @@
+libmbus (0.8.0+nmu7) UNRELEASED; urgency=low
+
+  * Non-maintainer upload.
+
+ -- Alexey Bondarchuk <alexey.bondarchuk@aleax.me>  Fri, 18 Jan 2013 10:41:24 +0200
+
+libmbus (0.8.0+nmu6) UNRELEASED; urgency=low
+
+  * Non-maintainer upload.
+
+ -- Alexey Bondarchuk <alexey.bondarchuk@aleax.me>  Tue, 15 Jan 2013 17:38:35 +0200
+
+libmbus (0.8.0+nmu5) UNRELEASED; urgency=low
+
+  * Non-maintainer upload.
+
+ -- Alexey Bondarchuk <alexey.bondarchuk@aleax.me>  Mon, 14 Jan 2013 12:41:08 +0200
+
+libmbus (0.8.0+nmu4) UNRELEASED; urgency=low
+
+  * Non-maintainer upload.
+
+ -- Alexey Bondarchuk <alexey.bondarchuk@aleax.me>  Tue, 25 Dec 2012 11:45:43 +0200
+
+libmbus (0.8.0+nmu3) UNRELEASED; urgency=low
+
+  * Non-maintainer upload.
+
+ -- Alexey Bondarchuk <alexey.bondarchuk@aleax.me>  Mon, 24 Dec 2012 16:02:39 +0200
+
 libmbus (0.8.0) precise; urgency=low
 
   * New official release. Includes support for multi-telegram communication.

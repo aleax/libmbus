@@ -2,7 +2,7 @@
 // Copyright (C) 2010-2011, Robert Johansson and contributors, Raditex AB
 // All rights reserved.
 //
-// rSCADA 
+// rSCADA
 // http://www.rSCADA.se
 // info@rscada.se
 //
@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <math.h>
 
+/*@ignore@*/
 #define MBUS_ERROR(...) fprintf (stderr, __VA_ARGS__)
 
 #ifdef _DEBUG_
@@ -27,6 +28,7 @@
 #else
 #define MBUS_DEBUG(...)
 #endif
+/*@end@*/
 
 static int debug = 0;
 
@@ -212,9 +214,17 @@ mbus_variable_vif vif_table[] = {
 
     /* E111 1010 Bus Address */
     { 0x7A, 1.0, "", "Bus Address" },
-
-    /* Manufacturer specific: 7Fh / FF */
+    
+    /* Any VIF: 7Eh */
+    { 0x7E, 1.0, "", "Any VIF" },
+    
+    /* Manufacturer specific: 7Fh */
     { 0x7F, 1.0, "", "Manufacturer specific" },
+    
+    /* Any VIF: 7Eh */
+    { 0xFE, 1.0, "", "Any VIF" },
+
+    /* Manufacturer specific: FFh */
     { 0xFF, 1.0, "", "Manufacturer specific" },
 
 
@@ -238,7 +248,7 @@ mbus_variable_vif vif_table[] = {
 
     /* E000 1001 Medium (as in fixed header) */
     { 0x109, 1.0e0,  "", "Device type" },
- 
+
     /* E000 1010 Manufacturer (as in fixed header) */
     { 0x10A, 1.0e0,  "", "Manufacturer" },
 
@@ -272,7 +282,7 @@ mbus_variable_vif vif_table[] = {
 
     /* E001 0100 Access Code System Operator */
     { 0x114, 1.0e0,  "", "Access Code System Operator" },
-    
+
     /* E001 0101 Access Code Developer */
     { 0x115, 1.0e0,  "", "Access Code Developer" },
 
@@ -369,7 +379,7 @@ mbus_variable_vif vif_table[] = {
     { 0x13D, 1.0e0,  "Reserved", "Reserved" },
     { 0x13E, 1.0e0,  "Reserved", "Reserved" },
     { 0x13F, 1.0e0,  "Reserved", "Reserved" },
-    
+
     /* E100 nnnn   Volts electrical units */
     { 0x140, 1.0e-9, "V", "Voltage" },
     { 0x141, 1.0e-8, "V", "Voltage" },
@@ -565,32 +575,22 @@ mbus_variable_vif vif_table[] = {
     { 0x235, 1.0e0, "Reserved", "Reserved" },
     { 0x236, 1.0e0, "Reserved", "Reserved" },
     { 0x237, 1.0e0, "Reserved", "Reserved" },
-
-    /* E101 10nn Flow Temperature 10(nn-3) °F 0.001°F to 1°F */
-    { 0x238, 1.0e-3, "°F", "Flow temperature" },
-    { 0x239, 1.0e-2, "°F", "Flow temperature" },
-    { 0x23A, 1.0e-1, "°F", "Flow temperature" },
-    { 0x23B, 1.0e0,  "°F", "Flow temperature" },
-
-    /* E101 11nn Return Temperature 10(nn-3) °F 0.001°F to 1°F */
-    { 0x23C, 1.0e-3, "°F", "Return temperature" },
-    { 0x23D, 1.0e-2, "°F", "Return temperature" },
-    { 0x23E, 1.0e-1, "°F", "Return temperature" },
-    { 0x23F, 1.0e0,  "°F", "Return temperature" },
-
-    /* E110 00nn Temperature Difference 10(nn-3) °F 0.001°F to 1°F */
-    { 0x240, 1.0e-3, "°F", "Temperature difference" },
-    { 0x241, 1.0e-2, "°F", "Temperature difference" },
-    { 0x242, 1.0e-1, "°F", "Temperature difference" },
-    { 0x243, 1.0e0,  "°F", "Temperature difference" },
-
-    /* E110 01nn External Temperature 10(nn-3) °F 0.001°F to 1°F */
-    { 0x244, 1.0e-3, "°F", "External temperature" },
-    { 0x245, 1.0e-2, "°F", "External temperature" },
-    { 0x246, 1.0e-1, "°F", "External temperature" },
-    { 0x247, 1.0e0,  "°F", "External temperature" },
-
-    /* E110 1nnn Reserved */
+    { 0x238, 1.0e0, "Reserved", "Reserved" },
+    { 0x239, 1.0e0, "Reserved", "Reserved" },
+    { 0x23A, 1.0e0, "Reserved", "Reserved" },
+    { 0x23B, 1.0e0, "Reserved", "Reserved" },
+    { 0x23C, 1.0e0, "Reserved", "Reserved" },
+    { 0x23D, 1.0e0, "Reserved", "Reserved" },
+    { 0x23E, 1.0e0, "Reserved", "Reserved" },
+    { 0x23F, 1.0e0, "Reserved", "Reserved" },
+    { 0x240, 1.0e0, "Reserved", "Reserved" },
+    { 0x241, 1.0e0, "Reserved", "Reserved" },
+    { 0x242, 1.0e0, "Reserved", "Reserved" },
+    { 0x243, 1.0e0, "Reserved", "Reserved" },
+    { 0x244, 1.0e0, "Reserved", "Reserved" },
+    { 0x245, 1.0e0, "Reserved", "Reserved" },
+    { 0x246, 1.0e0, "Reserved", "Reserved" },
+    { 0x247, 1.0e0, "Reserved", "Reserved" },
     { 0x248, 1.0e0, "Reserved", "Reserved" },
     { 0x249, 1.0e0, "Reserved", "Reserved" },
     { 0x24A, 1.0e0, "Reserved", "Reserved" },
@@ -599,29 +599,71 @@ mbus_variable_vif vif_table[] = {
     { 0x24D, 1.0e0, "Reserved", "Reserved" },
     { 0x24E, 1.0e0, "Reserved", "Reserved" },
     { 0x24F, 1.0e0, "Reserved", "Reserved" },
+    { 0x250, 1.0e0, "Reserved", "Reserved" },
+    { 0x251, 1.0e0, "Reserved", "Reserved" },
+    { 0x252, 1.0e0, "Reserved", "Reserved" },
+    { 0x253, 1.0e0, "Reserved", "Reserved" },
+    { 0x254, 1.0e0, "Reserved", "Reserved" },
+    { 0x255, 1.0e0, "Reserved", "Reserved" },
+    { 0x256, 1.0e0, "Reserved", "Reserved" },
+    { 0x257, 1.0e0, "Reserved", "Reserved" },
+    
+    /* E101 10nn Flow Temperature 10(nn-3) °F 0.001°F to 1°F */
+    { 0x258, 1.0e-3, "°F", "Flow temperature" },
+    { 0x259, 1.0e-2, "°F", "Flow temperature" },
+    { 0x25A, 1.0e-1, "°F", "Flow temperature" },
+    { 0x25B, 1.0e0,  "°F", "Flow temperature" },
+
+    /* E101 11nn Return Temperature 10(nn-3) °F 0.001°F to 1°F */
+    { 0x25C, 1.0e-3, "°F", "Return temperature" },
+    { 0x25D, 1.0e-2, "°F", "Return temperature" },
+    { 0x25E, 1.0e-1, "°F", "Return temperature" },
+    { 0x25F, 1.0e0,  "°F", "Return temperature" },
+
+    /* E110 00nn Temperature Difference 10(nn-3) °F 0.001°F to 1°F */
+    { 0x260, 1.0e-3, "°F", "Temperature difference" },
+    { 0x261, 1.0e-2, "°F", "Temperature difference" },
+    { 0x262, 1.0e-1, "°F", "Temperature difference" },
+    { 0x263, 1.0e0,  "°F", "Temperature difference" },
+
+    /* E110 01nn External Temperature 10(nn-3) °F 0.001°F to 1°F */
+    { 0x264, 1.0e-3, "°F", "External temperature" },
+    { 0x265, 1.0e-2, "°F", "External temperature" },
+    { 0x266, 1.0e-1, "°F", "External temperature" },
+    { 0x267, 1.0e0,  "°F", "External temperature" },
+
+    /* E110 1nnn Reserved */
+    { 0x268, 1.0e0, "Reserved", "Reserved" },
+    { 0x269, 1.0e0, "Reserved", "Reserved" },
+    { 0x26A, 1.0e0, "Reserved", "Reserved" },
+    { 0x26B, 1.0e0, "Reserved", "Reserved" },
+    { 0x26C, 1.0e0, "Reserved", "Reserved" },
+    { 0x26D, 1.0e0, "Reserved", "Reserved" },
+    { 0x26E, 1.0e0, "Reserved", "Reserved" },
+    { 0x26F, 1.0e0, "Reserved", "Reserved" },
 
     /* E111 00nn Cold / Warm Temperature Limit 10(nn-3) °F 0.001°F to 1°F */
-    { 0x250, 1.0e-3, "°F", "Cold / Warm Temperature Limit" },
-    { 0x251, 1.0e-2, "°F", "Cold / Warm Temperature Limit" },
-    { 0x252, 1.0e-1, "°F", "Cold / Warm Temperature Limit" },
-    { 0x253, 1.0e0,  "°F", "Cold / Warm Temperature Limit" },
+    { 0x270, 1.0e-3, "°F", "Cold / Warm Temperature Limit" },
+    { 0x271, 1.0e-2, "°F", "Cold / Warm Temperature Limit" },
+    { 0x272, 1.0e-1, "°F", "Cold / Warm Temperature Limit" },
+    { 0x273, 1.0e0,  "°F", "Cold / Warm Temperature Limit" },
 
     /* E111 01nn Cold / Warm Temperature Limit 10(nn-3) °C 0.001°C to 1°C */
-    { 0x254, 1.0e-3, "°C", "Cold / Warm Temperature Limit" },
-    { 0x255, 1.0e-2, "°C", "Cold / Warm Temperature Limit" },
-    { 0x256, 1.0e-1, "°C", "Cold / Warm Temperature Limit" },
-    { 0x257, 1.0e0,  "°C", "Cold / Warm Temperature Limit" },
+    { 0x274, 1.0e-3, "°C", "Cold / Warm Temperature Limit" },
+    { 0x275, 1.0e-2, "°C", "Cold / Warm Temperature Limit" },
+    { 0x276, 1.0e-1, "°C", "Cold / Warm Temperature Limit" },
+    { 0x277, 1.0e0,  "°C", "Cold / Warm Temperature Limit" },
 
     /* E111 1nnn cumul. count max power § 10(nnn-3) W 0.001W to 10000W */
-    { 0x258, 1.0e-3, "W", "Cumul count max power" },
-    { 0x259, 1.0e-3, "W", "Cumul count max power" },
-    { 0x25A, 1.0e-1, "W", "Cumul count max power" },
-    { 0x25B, 1.0e0,  "W", "Cumul count max power" },
-    { 0x25C, 1.0e1,  "W", "Cumul count max power" },
-    { 0x25D, 1.0e2,  "W", "Cumul count max power" },
-    { 0x25E, 1.0e3,  "W", "Cumul count max power" },
-    { 0x25F, 1.0e4,  "W", "Cumul count max power" },
-    
+    { 0x278, 1.0e-3, "W", "Cumul count max power" },
+    { 0x279, 1.0e-3, "W", "Cumul count max power" },
+    { 0x27A, 1.0e-1, "W", "Cumul count max power" },
+    { 0x27B, 1.0e0,  "W", "Cumul count max power" },
+    { 0x27C, 1.0e1,  "W", "Cumul count max power" },
+    { 0x27D, 1.0e2,  "W", "Cumul count max power" },
+    { 0x27E, 1.0e3,  "W", "Cumul count max power" },
+    { 0x27F, 1.0e4,  "W", "Cumul count max power" },
+
 /* End of array */
     { 0xFFFF, 0.0, "", "" },
 };
@@ -705,25 +747,40 @@ mbus_variable_vif fixed_table[] = {
     { 0xFFFF, 0.0, "", "" },
 };
 
-void (*_mbus_scan_progress)(mbus_handle * handle, const char *mask) = NULL;
-void (*_mbus_found_event)(mbus_handle * handle, mbus_frame *frame) = NULL;
+//------------------------------------------------------------------------------
+/// Register a function for receive events.
+//------------------------------------------------------------------------------
+void
+mbus_register_recv_event(mbus_handle * handle, void (*event)(unsigned char src_type, const char *buff, size_t len))
+{
+    handle->recv_event = event;
+}
+
+//------------------------------------------------------------------------------
+/// Register a function for send events.
+//------------------------------------------------------------------------------
+void
+mbus_register_send_event(mbus_handle * handle, void (*event)(unsigned char src_type, const char *buff, size_t len))
+{
+    handle->send_event = event;
+}
 
 //------------------------------------------------------------------------------
 /// Register a function for the scan progress.
 //------------------------------------------------------------------------------
 void
-mbus_register_scan_progress(void (*event)(mbus_handle * handle, const char *mask))
+mbus_register_scan_progress(mbus_handle * handle, void (*event)(mbus_handle * handle, const char *mask))
 {
-    _mbus_scan_progress = event;
+    handle->scan_progress = event;
 }
 
 //------------------------------------------------------------------------------
 /// Register a function for the found events.
 //------------------------------------------------------------------------------
 void
-mbus_register_found_event(void (*event)(mbus_handle * handle, mbus_frame *frame))
+mbus_register_found_event(mbus_handle * handle, void (*event)(mbus_handle * handle, mbus_frame *frame))
 {
-    _mbus_found_event = event;
+    handle->found_event = event;
 }
 
 int mbus_fixed_normalize(int medium_unit, long medium_value, char **unit_out, double *value_out, char **quantity_out)
@@ -731,7 +788,7 @@ int mbus_fixed_normalize(int medium_unit, long medium_value, char **unit_out, do
     double exponent = 0.0;
     int i;
     medium_unit = medium_unit & 0x3F;
-    
+
     if (unit_out == NULL || value_out == NULL || quantity_out == NULL)
     {
         MBUS_ERROR("%s: Invalid parameter.\n", __PRETTY_FUNCTION__);
@@ -740,14 +797,14 @@ int mbus_fixed_normalize(int medium_unit, long medium_value, char **unit_out, do
 
     switch (medium_unit)
     {
-        case 0x00:    
+        case 0x00:
             *unit_out = strdup("h,m,s"); /*  todo convert to unix time... */
             *quantity_out = strdup("Time");
-            break;    
-        case 0x01:    
+            break;
+        case 0x01:
             *unit_out = strdup("D,M,Y"); /*  todo convert to unix time... */
             *quantity_out = strdup("Time");
-            break;    
+            break;
 
     default:
         for(i=0; fixed_table[i].vif < 0xfff; ++i)
@@ -766,9 +823,8 @@ int mbus_fixed_normalize(int medium_unit, long medium_value, char **unit_out, do
         exponent = 0.0;
         *value_out = 0.0;
         return -1;
-        break;
     }
-    
+
     return -2;
 }
 
@@ -776,21 +832,24 @@ int mbus_fixed_normalize(int medium_unit, long medium_value, char **unit_out, do
 int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real, char **value_out_str, int *value_out_str_size)
 {
     int result = 0;
+    unsigned char vif, vife;
+    struct tm time;
+    int value_out_int;
+    long value_out_long;
+    long long value_out_long_long;
     *value_out_real = 0.0;
     *value_out_str = NULL;
     *value_out_str_size = 0;
-    u_char vif, vife;
-    struct tm time;
 
     if (record)
     {
         MBUS_DEBUG("coding = 0x%02X \n", record->drh.dib.dif);
-        
+
         // ignore extension bit
-        vif = (record->drh.vib.vif & MBUS_DIB_VIF_WITHOUT_EXTENSION);       
+        vif = (record->drh.vib.vif & MBUS_DIB_VIF_WITHOUT_EXTENSION);
         vife = (record->drh.vib.vife[0] & MBUS_DIB_VIF_WITHOUT_EXTENSION);
 
-        switch (record->drh.dib.dif & 0x0F)
+        switch (record->drh.dib.dif & MBUS_DATA_RECORD_DIF_MASK_DATA)
         {
             case 0x00: /* no data */
                 if ((*value_out_str = (char*) malloc(1)) == NULL)
@@ -800,16 +859,16 @@ int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real,
                 }
                 *value_out_str_size = 0;
                 result = 0;
-                break; 
+                break;
 
             case 0x01: /* 1 byte integer (8 bit) */
-                *value_out_real = mbus_data_int_decode(record->data, 1);
-                result = 0;
-                break; 
+                result = mbus_data_int_decode(record->data, 1, &value_out_int);
+                *value_out_real = value_out_int;
+                break;
 
             case 0x02: /* 2 byte integer (16 bit) */
                 // E110 1100  Time Point (date)
-                if (vif == 0x6C)            
+                if (vif == 0x6C)
                 {
                     mbus_data_tm_decode(&time, record->data, 2);
                     if ((*value_out_str = (char*) malloc(11)) == NULL)
@@ -817,31 +876,31 @@ int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real,
                         MBUS_ERROR("Unable to allocate memory");
                         return -1;
                     }
-                    *value_out_str_size = snprintf(*value_out_str, 11, "%04d-%02d-%02d", 
-                                                 (time.tm_year + 2000), 
-                                                 (time.tm_mon + 1), 
+                    *value_out_str_size = snprintf(*value_out_str, 11, "%04d-%02d-%02d",
+                                                 (time.tm_year + 2000),
+                                                 (time.tm_mon + 1),
                                                   time.tm_mday);
+                    result = 0;
                 }
                 else  // normal integer
                 {
-                    *value_out_real = mbus_data_int_decode(record->data, 2);
+                    result = mbus_data_int_decode(record->data, 2, &value_out_int);
+                    *value_out_real = value_out_int; 
                 }
-            
-                result = 0;
-                break; 
+                break;
 
             case 0x03: /* 3 byte integer (24 bit) */
-                *value_out_real = mbus_data_int_decode(record->data, 3);
-                result = 0;
-                break; 
-                
+                result = mbus_data_int_decode(record->data, 3, &value_out_int);
+                *value_out_real = value_out_int;
+                break;
+
             case 0x04: /* 4 byte integer (32 bit) */
                 // E110 1101  Time Point (date/time)
                 // E011 0000  Start (date/time) of tariff
                 // E111 0000  Date and time of battery change
-                if ( (vif == 0x6D) ||                                     
-                    ((record->drh.vib.vif == 0xFD) && (vife == 0x30)) ||  
-                    ((record->drh.vib.vif == 0xFD) && (vife == 0x70)))    
+                if ( (vif == 0x6D) ||
+                    ((record->drh.vib.vif == 0xFD) && (vife == 0x30)) ||
+                    ((record->drh.vib.vif == 0xFD) && (vife == 0x70)))
                 {
                     mbus_data_tm_decode(&time, record->data, 4);
                     if ((*value_out_str = (char*) malloc(20)) == NULL)
@@ -849,20 +908,21 @@ int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real,
                         MBUS_ERROR("Unable to allocate memory");
                         return -1;
                     }
-                    *value_out_str_size = snprintf(*value_out_str, 20, "%04d-%02d-%02dT%02d:%02d:%02d", 
-                                                 (time.tm_year + 2000), 
-                                                 (time.tm_mon + 1), 
+                    *value_out_str_size = snprintf(*value_out_str, 20, "%04d-%02d-%02dT%02d:%02d:%02d",
+                                                 (time.tm_year + 2000),
+                                                 (time.tm_mon + 1),
                                                   time.tm_mday,
                                                   time.tm_hour,
                                                   time.tm_min,
                                                   time.tm_sec);
+                    result = 0;
                 }
                 else  // normal integer
                 {
-                    *value_out_real = mbus_data_int_decode(record->data, 4);
+                    result = mbus_data_int_decode(record->data, 4, &value_out_int);
+                    *value_out_real = value_out_int; 
                 }
-                result = 0;
-                break;  
+                break;
 
             case 0x05: /* 32b real */
                 *value_out_real = mbus_data_float_decode(record->data);
@@ -870,35 +930,35 @@ int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real,
                 break;
 
             case 0x06: /* 6 byte integer (48 bit) */
-                *value_out_real = mbus_data_long_long_decode(record->data, 6);
-                result = 0;
-                break;          
+                result = mbus_data_long_long_decode(record->data, 6, &value_out_long_long);
+                *value_out_real = value_out_long_long;
+                break;
 
             case 0x07: /* 8 byte integer (64 bit) */
-                *value_out_real = mbus_data_long_long_decode(record->data, 8);
-                result = 0;
-                break;          
+            	result = mbus_data_long_long_decode(record->data, 8, &value_out_long_long);
+                *value_out_real = value_out_long_long;
+                break;
 
             case 0x09: /* 2 digit BCD (8 bit) */
-                *value_out_real = mbus_data_bcd_decode(record->data, 1);  
+                *value_out_real = mbus_data_bcd_decode(record->data, 1);
                 result = 0;
                 break;
-                
+
             case 0x0A: /* 4 digit BCD (16 bit) */
-                *value_out_real = mbus_data_bcd_decode(record->data, 2);  
+                *value_out_real = mbus_data_bcd_decode(record->data, 2);
                 result = 0;
                 break;
 
             case 0x0B: /* 6 digit BCD (24 bit) */
-                *value_out_real = mbus_data_bcd_decode(record->data, 3);  
+                *value_out_real = mbus_data_bcd_decode(record->data, 3);
                 result = 0;
                 break;
-                
+
             case 0x0C: /* 8 digit BCD (32 bit) */
-                *value_out_real = mbus_data_bcd_decode(record->data, 4);  
+                *value_out_real = mbus_data_bcd_decode(record->data, 4);
                 result = 0;
                 break;
-                                                                  
+
             case 0x0D: /* variable length */
             {
                 if (record->data_len <= 0xBF) {
@@ -908,7 +968,7 @@ int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real,
                         return -1;
                     }
                     *value_out_str_size = record->data_len;
-                    mbus_data_str_decode((u_char*)(*value_out_str), record->data, record->data_len);
+                    mbus_data_str_decode((unsigned char*)(*value_out_str), record->data, record->data_len);
                     result = 0;
                     break;
                 }
@@ -929,7 +989,7 @@ int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real,
                     return -1;
                 }
                 *value_out_str_size = 3 * record->data_len;
-                mbus_data_bin_decode((u_char*)(*value_out_str), record->data, record->data_len, (3 * record->data_len + 1));
+                mbus_data_bin_decode((unsigned char*)(*value_out_str), record->data, record->data_len, (3 * record->data_len + 1));
                 result = 0;
                 break;
 
@@ -944,27 +1004,25 @@ int mbus_variable_value_decode(mbus_data_record *record, double *value_out_real,
         MBUS_ERROR("record is null");
         result = -3;
     }
-    
+
     return result;
 }
 
 int
 mbus_vif_unit_normalize(int vif, double value, char **unit_out, double *value_out, char **quantity_out)
 {
-    MBUS_DEBUG("vif_unit_normalize = 0x%03X \n", vif);
-
+    int i;
     double exponent = 1.0;
-
     unsigned newVif = vif & 0xF7F; /* clear extension bit */
 
-    int i;
-    
+    MBUS_DEBUG("vif_unit_normalize = 0x%03X \n", vif);
+
     if (unit_out == NULL || value_out == NULL || quantity_out == NULL)
     {
         MBUS_ERROR("%s: Invalid parameter.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
+
     for(i=0; vif_table[i].vif < 0xfff; ++i)
     {
         if (vif_table[i].vif == newVif)
@@ -987,15 +1045,17 @@ mbus_vif_unit_normalize(int vif, double value, char **unit_out, double *value_ou
 
 int
 mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **unit_out, double *value_out, char **quantity_out)
-{   
+{
+    int code;
+
     if (vib == NULL || unit_out == NULL || value_out == NULL || quantity_out == NULL)
     {
         MBUS_ERROR("%s: Invalid parameter.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
+
     MBUS_DEBUG("%s: vib_unit_normalize - VIF=0x%02X\n", __PRETTY_FUNCTION__, vib->vif);
-    
+
     if (vib->vif == 0xFD) /* first type of VIF extention: see table 8.4.4 a */
     {
         if (vib->nvife == 0)
@@ -1004,7 +1064,7 @@ mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **
             return -1;
         }
 
-        int code = ((vib->vife[0]) & MBUS_DIB_VIF_WITHOUT_EXTENSION) | 0x100;
+        code = ((vib->vife[0]) & MBUS_DIB_VIF_WITHOUT_EXTENSION) | 0x100;
         if (mbus_vif_unit_normalize(code, value, unit_out, value_out, quantity_out) != 0)
         {
             MBUS_ERROR("%s: Error mbus_vif_unit_normalize\n", __PRETTY_FUNCTION__);
@@ -1018,14 +1078,14 @@ mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **
                 MBUS_ERROR("%s: Missing VIF extension\n", __PRETTY_FUNCTION__);
                 return -1;
             }
-            
-            int code = ((vib->vife[0]) & MBUS_DIB_VIF_WITHOUT_EXTENSION) | 0x200;
+
+            code = ((vib->vife[0]) & MBUS_DIB_VIF_WITHOUT_EXTENSION) | 0x200;
             if (0 != mbus_vif_unit_normalize(code, value, unit_out, value_out, quantity_out))
             {
                 MBUS_ERROR("%s: Error mbus_vif_unit_normalize\n", __PRETTY_FUNCTION__);
                 return -1;
             }
-        } 
+        }
         else if ((vib->vif == 0x7C) ||
                  (vib->vif == 0xFC))
         {
@@ -1036,7 +1096,7 @@ mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **
         }
         else
         {
-            int code = (vib->vif) & MBUS_DIB_VIF_WITHOUT_EXTENSION;
+            code = (vib->vif) & MBUS_DIB_VIF_WITHOUT_EXTENSION;
             if (0 != mbus_vif_unit_normalize(code, value, unit_out, value_out, quantity_out))
             {
                 MBUS_ERROR("%s: Error mbus_vif_unit_normalize\n", __PRETTY_FUNCTION__);
@@ -1044,12 +1104,12 @@ mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **
             }
         }
     }
-    
-    if ((vib->vif & MBUS_DIB_VIF_EXTENSION_BIT) &&                       
+
+    if ((vib->vif & MBUS_DIB_VIF_EXTENSION_BIT) &&
         (vib->vif != 0xFD) &&
         (vib->vif != 0xFB))                       /* codes for VIF extention: see table 8.4.5 */
     {
-        int code = (vib->vif) & 0x7f;
+        code = (vib->vife[0]) & 0x7f;
         switch (code)
         {
             case 0x70:
@@ -1062,14 +1122,14 @@ mbus_vib_unit_normalize(mbus_value_information_block *vib, double value, char **
             case 0x77: /* Multiplicative correction factor: 10^nnn-6 */
                 *value_out *= pow(10.0, (vib->vife[0] & 0x07) - 6);
                 break;
-                
+
             case 0x78:
             case 0x79:
             case 0x7A:
             case 0x7B: /* Additive correction constant: 10^nn-3 unit of VIF (offset) */
                 *value_out += pow(10.0, (vib->vife[0] & 0x03) - 3);
                 break;
-                
+
             case 0x7D: /* Multiplicative correction factor: 10^3 */
                 *value_out *= 1000.0;
                 break;
@@ -1096,6 +1156,9 @@ mbus_record_new()
     record->unit = NULL;
     record->function_medium = NULL;
     record->quantity = NULL;
+    record->device = -1;
+    record->tariff = -1;
+    record->storage_number = 0;
     return record;
 }
 
@@ -1110,19 +1173,19 @@ mbus_record_free(mbus_record * rec)
             free((rec->value).str_val.value);
             (rec->value).str_val.value = NULL;
         }
-    
+
         if (rec->unit)
         {
             free(rec->unit);
             rec->unit = NULL;
         }
-    
+
         if (rec->function_medium)
         {
             free(rec->function_medium);
             rec->function_medium = NULL;
         }
-    
+
         if (rec->quantity)
         {
             free(rec->quantity);
@@ -1134,8 +1197,9 @@ mbus_record_free(mbus_record * rec)
 
 
 mbus_record *
-mbus_parse_fixed_record(char status_byte, char medium_unit, u_char *data)
+mbus_parse_fixed_record(char status_byte, char medium_unit, unsigned char *data)
 {
+    long value = 0;
     mbus_record * record = NULL;
 
     if (!(record = mbus_record_new()))
@@ -1146,7 +1210,7 @@ mbus_parse_fixed_record(char status_byte, char medium_unit, u_char *data)
 
     /* shared/static memory - get own copy */
     record->function_medium = strdup(mbus_data_fixed_function((int)status_byte));  /* stored / actual */
-    
+
     if (record->function_medium == NULL)
     {
         MBUS_ERROR("%s: memory allocation error\n", __PRETTY_FUNCTION__);
@@ -1154,14 +1218,13 @@ mbus_parse_fixed_record(char status_byte, char medium_unit, u_char *data)
         return NULL;
     }
 
-    long value = 0;
     if ((status_byte & MBUS_DATA_FIXED_STATUS_FORMAT_MASK) == MBUS_DATA_FIXED_STATUS_FORMAT_BCD)
     {
         value = mbus_data_bcd_decode(data, 4);
     }
     else
     {
-        value = mbus_data_int_decode(data, 4);
+        mbus_data_long_decode(data, 4, &value);
     }
 
     record->unit = NULL;
@@ -1185,7 +1248,7 @@ mbus_parse_variable_record(mbus_data_record *data)
     char * value_out_str     = NULL;
     int    value_out_str_size = 0;
     double real_val         = 0.0;  /**< normalized value */
-    
+
     if (data == NULL)
     {
         MBUS_ERROR("%s: Invalid record.\n", __PRETTY_FUNCTION__);
@@ -1197,8 +1260,12 @@ mbus_parse_variable_record(mbus_data_record *data)
         MBUS_ERROR("%s: memory allocation error\n", __PRETTY_FUNCTION__);
         return NULL;
     }
- 
-    if ((data->drh.dib.dif == MBUS_DIB_DIF_MANUFACTURER_SPECIFIC) || 
+    
+    record->storage_number = mbus_data_record_storage_number(data);
+    record->tariff = mbus_data_record_tariff(data);
+    record->device = mbus_data_record_device(data);
+
+    if ((data->drh.dib.dif == MBUS_DIB_DIF_MANUFACTURER_SPECIFIC) ||
         (data->drh.dib.dif == MBUS_DIB_DIF_MORE_RECORDS_FOLLOW)) /* MBUS_DIB_DIF_VENDOR_SPECIFIC */
     {
         if (data->drh.dib.dif == MBUS_DIB_DIF_MORE_RECORDS_FOLLOW)
@@ -1209,24 +1276,24 @@ mbus_parse_variable_record(mbus_data_record *data)
         {
             record->function_medium = strdup("Manufacturer specific");
         }
-        
+
         if (record->function_medium == NULL)
         {
             MBUS_ERROR("%s: memory allocation error\n", __PRETTY_FUNCTION__);
             mbus_record_free(record);
             return NULL;
         }
-    
+
         /* parsing of data not implemented yet
            manufacturer specific data structures to end of user data */
-           
+
         if (mbus_variable_value_decode(data, &value_out_real, &value_out_str, &value_out_str_size) != 0)
         {
             MBUS_ERROR("%s: problem with mbus_variable_value_decode\n", __PRETTY_FUNCTION__);
             mbus_record_free(record);
             return NULL;
         }
-        
+
         if (value_out_str != NULL)
         {
             record->is_numeric = 0;
@@ -1242,15 +1309,15 @@ mbus_parse_variable_record(mbus_data_record *data)
     else
     {
         record->function_medium = strdup(mbus_data_record_function(data));
-        
+
         if (record->function_medium == NULL)
         {
             MBUS_ERROR("%s: memory allocation error\n", __PRETTY_FUNCTION__);
             mbus_record_free(record);
             return NULL;
         }
-        
-        MBUS_DEBUG("record->function_medium = %s \n", record->function_medium);     
+
+        MBUS_DEBUG("record->function_medium = %s \n", record->function_medium);
 
         if (mbus_variable_value_decode(data, &value_out_real, &value_out_str, &value_out_str_size) != 0)
         {
@@ -1282,62 +1349,76 @@ mbus_parse_variable_record(mbus_data_record *data)
             (record->value).real_val = real_val;
         }
     }
-    
+
     return record;
 }
 
 //------------------------------------------------------------------------------
-/// Generate XML for variable-length data 
+/// Generate XML for variable-length data
 //------------------------------------------------------------------------------
 char *
 mbus_data_variable_xml_normalized(mbus_data_variable *data)
 {
     mbus_data_record *record;
     mbus_record *norm_record;
-    char *buff = NULL;
+    char *buff = NULL, *new_buff = NULL;
     char str_encoded[768];
     size_t len = 0, buff_size = 8192;
     size_t i;
-    
+
     if (data)
     {
         buff = (char*) malloc(buff_size);
-        
+
         if (buff == NULL)
             return NULL;
-    
+
         len += snprintf(&buff[len], buff_size - len, "<MBusData>\n\n");
-        
+
         len += snprintf(&buff[len], buff_size - len, "%s", mbus_data_variable_header_xml(&(data->header)));
-    
+
         for (record = data->record, i = 0; record; record = record->next, i++)
         {
             norm_record = mbus_parse_variable_record(record);
-            
+
             if ((buff_size - len) < 1024)
             {
                 buff_size *= 2;
-                buff = (char*) realloc(buff,buff_size);
-                
-                if (buff == NULL)
+                new_buff = (char*) realloc(buff,buff_size);
+
+                if (new_buff == NULL)
+                {
+                    mbus_record_free(norm_record);
+                    free(buff);
                     return NULL;
+                }
+
+                buff = new_buff;
             }
-            
+
             len += snprintf(&buff[len], buff_size - len, "    <DataRecord id=\"%zd\">\n", i);
-            
+
             if (norm_record != NULL)
-            {                
+            {
                 mbus_str_xml_encode(str_encoded, norm_record->function_medium, sizeof(str_encoded));
                 len += snprintf(&buff[len], buff_size - len, "        <Function>%s</Function>\n", str_encoded);
                 
+                len += snprintf(&buff[len], buff_size - len, "        <StorageNumber>%ld</StorageNumber>\n", norm_record->storage_number);
+            	
+            	if (norm_record->tariff >= 0)
+            	{
+	            	len += snprintf(&buff[len], buff_size - len, "        <Tariff>%ld</Tariff>\n", norm_record->tariff);
+	            	len += snprintf(&buff[len], buff_size - len, "        <Device>%d</Device>\n", norm_record->device);
+            	}
+
                 mbus_str_xml_encode(str_encoded, norm_record->unit, sizeof(str_encoded));
-                
+
                 len += snprintf(&buff[len], buff_size - len, "        <Unit>%s</Unit>\n", str_encoded);
-                    
+
                 mbus_str_xml_encode(str_encoded, norm_record->quantity, sizeof(str_encoded));
                 len += snprintf(&buff[len], buff_size - len, "        <Quantity>%s</Quantity>\n", str_encoded);
-                
-                
+
+
                 if (norm_record->is_numeric)
                 {
                     len += snprintf(&buff[len], buff_size - len, "        <Value>%f</Value>\n", norm_record->value.real_val);
@@ -1347,21 +1428,21 @@ mbus_data_variable_xml_normalized(mbus_data_variable *data)
                     mbus_str_xml_encode(str_encoded, norm_record->value.str_val.value, sizeof(str_encoded));
                     len += snprintf(&buff[len], buff_size - len, "        <Value>%s</Value>\n", str_encoded);
                 }
-                
+
                 mbus_record_free(norm_record);
             }
             else
             {
             }
-            
+
             len += snprintf(&buff[len], buff_size - len, "    </DataRecord>\n\n");
         }
-       
+
         len += snprintf(&buff[len], buff_size - len, "</MBusData>\n");
 
         return buff;
     }
-    
+
     return NULL;
 }
 
@@ -1377,13 +1458,13 @@ mbus_frame_data_xml_normalized(mbus_frame_data *data)
         {
             return mbus_data_fixed_xml(&(data->data_fix));
         }
-        
+
         if (data->type == MBUS_DATA_TYPE_VARIABLE)
         {
             return mbus_data_variable_xml_normalized(&(data->data_var));
         }
     }
-    
+
     return NULL;
 }
 
@@ -1408,7 +1489,8 @@ mbus_context_serial(const char *device)
         return NULL;
     }
 
-    handle->max_retry = 3;
+    handle->max_data_retry = 3;
+    handle->max_search_retry = 1;
     handle->is_serial = 1;
     handle->purge_first_frame = MBUS_FRAME_PURGE_M2S;
     handle->auxdata = serial_data;
@@ -1417,6 +1499,10 @@ mbus_context_serial(const char *device)
     handle->recv = mbus_serial_recv_frame;
     handle->send = mbus_serial_send_frame;
     handle->free_auxdata = mbus_serial_data_free;
+    handle->recv_event = NULL;
+    handle->send_event = NULL;
+    handle->scan_progress = NULL;
+    handle->found_event = NULL;
 
     if ((serial_data->device = strdup(device)) == NULL)
     {
@@ -1431,7 +1517,7 @@ mbus_context_serial(const char *device)
 }
 
 mbus_handle *
-mbus_context_tcp(const char *host, int port)
+mbus_context_tcp(const char *host, uint16_t port)
 {
     mbus_handle *handle;
     mbus_tcp_data *tcp_data;
@@ -1451,7 +1537,8 @@ mbus_context_tcp(const char *host, int port)
         return NULL;
     }
 
-    handle->max_retry = 3;
+    handle->max_data_retry = 3;
+    handle->max_search_retry = 1;
     handle->is_serial = 0;
     handle->purge_first_frame = MBUS_FRAME_PURGE_M2S;
     handle->auxdata = tcp_data;
@@ -1460,6 +1547,10 @@ mbus_context_tcp(const char *host, int port)
     handle->recv = mbus_tcp_recv_frame;
     handle->send = mbus_tcp_send_frame;
     handle->free_auxdata = mbus_tcp_data_free;
+    handle->recv_event = NULL;
+    handle->send_event = NULL;
+    handle->scan_progress = NULL;
+    handle->found_event = NULL;
 
     tcp_data->port = port;
     if ((tcp_data->host = strdup(host)) == NULL)
@@ -1516,13 +1607,20 @@ mbus_context_set_option(mbus_handle * handle, mbus_context_option option, long v
         MBUS_ERROR("%s: Invalid M-Bus handle to set option.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
+
     switch (option)
     {
-        case MBUS_OPTION_MAX_RETRY:
+        case MBUS_OPTION_MAX_DATA_RETRY:
             if ((value >= 0) && (value <= 9))
             {
-                handle->max_retry = value;
+                handle->max_data_retry = value;
+                return 0;
+            }
+            break;
+        case MBUS_OPTION_MAX_SEARCH_RETRY:
+            if ((value >= 0) && (value <= 9))
+            {
+                handle->max_search_retry = value;
                 return 0;
             }
             break;
@@ -1536,7 +1634,7 @@ mbus_context_set_option(mbus_handle * handle, mbus_context_option option, long v
             }
             break;
     }
-    
+
     return -1; // unable to set option
 }
 
@@ -1558,16 +1656,16 @@ mbus_recv_frame(mbus_handle * handle, mbus_frame *frame)
     }
 
     result = handle->recv(handle, frame);
-    
+
     switch (mbus_frame_direction(frame))
     {
         case MBUS_CONTROL_MASK_DIR_M2S:
             if (handle->purge_first_frame == MBUS_FRAME_PURGE_M2S)
-                result = handle->recv(handle, frame);  // purge echo and retry 
+                result = handle->recv(handle, frame);  // purge echo and retry
     	     break;
         case MBUS_CONTROL_MASK_DIR_S2M:
             if (handle->purge_first_frame == MBUS_FRAME_PURGE_S2M)
-                result = handle->recv(handle, frame);  // purge echo and retry 
+                result = handle->recv(handle, frame);  // purge echo and retry
              break;
     }
 
@@ -1576,7 +1674,7 @@ mbus_recv_frame(mbus_handle * handle, mbus_frame *frame)
         /* set timestamp to receive time */
         time(&(frame->timestamp));
     }
-    
+
     return result;
 }
 
@@ -1584,14 +1682,14 @@ int mbus_purge_frames(mbus_handle *handle)
 {
     int err, received;
     mbus_frame reply;
-    
+
     memset((void *)&reply, 0, sizeof(mbus_frame));
 
     received = 0;
     while (1)
     {
         err = mbus_recv_frame(handle, &reply);
-        if (err != MBUS_RECV_RESULT_OK && 
+        if (err != MBUS_RECV_RESULT_OK &&
             err != MBUS_RECV_RESULT_INVALID)
             break;
 
@@ -1622,7 +1720,7 @@ int
 mbus_send_select_frame(mbus_handle * handle, const char *secondary_addr_str)
 {
     mbus_frame *frame;
-        
+
     frame = mbus_frame_new(MBUS_FRAME_TYPE_LONG);
 
     if (mbus_frame_select_secondary_pack(frame, (char*) secondary_addr_str) == -1)
@@ -1630,15 +1728,15 @@ mbus_send_select_frame(mbus_handle * handle, const char *secondary_addr_str)
         MBUS_ERROR("%s: Failed to pack selection mbus frame.\n", __PRETTY_FUNCTION__);
         mbus_frame_free(frame);
         return -1;
-    }    
+    }
 
     if (mbus_send_frame(handle, frame) == -1)
     {
         MBUS_ERROR("%s: Failed to send mbus frame.\n", __PRETTY_FUNCTION__);
         mbus_frame_free(frame);
         return -1;
-    }    
-	
+    }
+
     mbus_frame_free(frame);
     return 0;
 }
@@ -1648,18 +1746,18 @@ mbus_send_select_frame(mbus_handle * handle, const char *secondary_addr_str)
 // adressed slave(s) switch to the given baudrate
 //------------------------------------------------------------------------------
 int
-mbus_send_switch_baudrate_frame(mbus_handle * handle, int address, int baudrate)
+mbus_send_switch_baudrate_frame(mbus_handle * handle, int address, long baudrate)
 {
     int retval = 0;
     int control_information = 0;
     mbus_frame *frame;
-    
+
     if (mbus_is_primary_address(address) == 0)
     {
         MBUS_ERROR("%s: invalid address %d\n", __PRETTY_FUNCTION__, address);
         return -1;
     }
-    
+
     switch (baudrate)
     {
       case 300:
@@ -1687,19 +1785,19 @@ mbus_send_switch_baudrate_frame(mbus_handle * handle, int address, int baudrate)
         control_information = MBUS_CONTROL_INFO_SET_BAUDRATE_38400;
         break;
       default:
-        MBUS_ERROR("%s: invalid baudrate %d\n", __PRETTY_FUNCTION__, baudrate);
+        MBUS_ERROR("%s: invalid baudrate %lu\n", __PRETTY_FUNCTION__, baudrate);
         return -1;
     }
-    
+
     frame = mbus_frame_new(MBUS_FRAME_TYPE_CONTROL);
-    
+
     if (frame == NULL)
     {
         MBUS_ERROR("%s: failed to allocate mbus frame.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
-    frame->control = MBUS_CONTROL_MASK_SND_UD | MBUS_CONTROL_MASK_DIR_M2S; 
+
+    frame->control = MBUS_CONTROL_MASK_SND_UD | MBUS_CONTROL_MASK_DIR_M2S;
     frame->address = address;
     frame->control_information = control_information;
 
@@ -1722,31 +1820,31 @@ mbus_send_application_reset_frame(mbus_handle * handle, int address, int subcode
 {
     int retval = 0;
     mbus_frame *frame;
-    
+
     if (mbus_is_primary_address(address) == 0)
     {
         MBUS_ERROR("%s: invalid address %d\n", __PRETTY_FUNCTION__, address);
         return -1;
     }
-    
+
     if (subcode > 0xFF)
     {
     	MBUS_ERROR("%s: invalid subcode %d\n", __PRETTY_FUNCTION__, subcode);
         return -1;
     }
-    
+
     frame = mbus_frame_new(MBUS_FRAME_TYPE_LONG);
-    
+
     if (frame == NULL)
     {
         MBUS_ERROR("%s: failed to allocate mbus frame.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
+
     frame->control = MBUS_CONTROL_MASK_SND_UD | MBUS_CONTROL_MASK_DIR_M2S;
     frame->address = address;
     frame->control_information = MBUS_CONTROL_INFO_APPLICATION_RESET;
-    
+
     if (subcode >= 0)
     {
         frame->data_size = 1;
@@ -1776,7 +1874,7 @@ mbus_send_request_frame(mbus_handle * handle, int address)
 {
     int retval = 0;
     mbus_frame *frame;
-    
+
     if (mbus_is_primary_address(address) == 0)
     {
         MBUS_ERROR("%s: invalid address %d\n", __PRETTY_FUNCTION__, address);
@@ -1784,15 +1882,66 @@ mbus_send_request_frame(mbus_handle * handle, int address)
     }
 
     frame = mbus_frame_new(MBUS_FRAME_TYPE_SHORT);
-    
+
     if (frame == NULL)
     {
         MBUS_ERROR("%s: failed to allocate mbus frame.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
-    frame->control = MBUS_CONTROL_MASK_REQ_UD2 | MBUS_CONTROL_MASK_DIR_M2S; 
+
+    frame->control = MBUS_CONTROL_MASK_REQ_UD2 | MBUS_CONTROL_MASK_DIR_M2S;
     frame->address = address;
+
+    if (mbus_send_frame(handle, frame) == -1)
+    {
+        MBUS_ERROR("%s: failed to send mbus frame.\n", __PRETTY_FUNCTION__);
+        retval = -1;
+    }
+
+    mbus_frame_free(frame);
+    return retval;
+}
+
+//------------------------------------------------------------------------------
+// send a user data packet from master to slave
+//------------------------------------------------------------------------------
+int
+mbus_send_user_data_frame(mbus_handle * handle, int address, const unsigned char *data, size_t data_size)
+{
+    int retval = 0;
+    mbus_frame *frame;
+
+    if (mbus_is_primary_address(address) == 0)
+    {
+        MBUS_ERROR("%s: invalid address %d\n", __PRETTY_FUNCTION__, address);
+        return -1;
+    }
+
+    if (data == NULL)
+    {
+        MBUS_ERROR("%s: Invalid data\n", __PRETTY_FUNCTION__);
+        return -1;
+    }
+
+    if ((data_size > MBUS_FRAME_DATA_LENGTH) || (data_size == 0))
+    {
+        MBUS_ERROR("%s: illegal data_size %d\n", __PRETTY_FUNCTION__, data_size);
+        return -1;
+    }
+
+    frame = mbus_frame_new(MBUS_FRAME_TYPE_LONG);
+
+    if (frame == NULL)
+    {
+        MBUS_ERROR("%s: failed to allocate mbus frame.\n", __PRETTY_FUNCTION__);
+        return -1;
+    }
+
+    frame->control = MBUS_CONTROL_MASK_SND_UD | MBUS_CONTROL_MASK_DIR_M2S;
+    frame->address = address;
+    frame->control_information = MBUS_CONTROL_INFO_DATA_SEND;
+    frame->data_size = data_size;
+    memcpy(frame->data, data, data_size);
 
     if (mbus_send_frame(handle, frame) == -1)
     {
@@ -1815,13 +1964,13 @@ mbus_sendrecv_request(mbus_handle *handle, int address, mbus_frame *reply, int m
     mbus_frame_data reply_data;
     mbus_frame *frame, *next_frame;
     int frame_count = 0, result;
-    
+
     if (handle == NULL)
     {
         MBUS_ERROR("%s: Invalid M-Bus handle for request.\n", __PRETTY_FUNCTION__);
         return 1;
     }
-    
+
     if (mbus_is_primary_address(address) == 0)
     {
         MBUS_ERROR("%s: invalid address %d\n", __PRETTY_FUNCTION__, address);
@@ -1829,50 +1978,50 @@ mbus_sendrecv_request(mbus_handle *handle, int address, mbus_frame *reply, int m
     }
 
     frame = mbus_frame_new(MBUS_FRAME_TYPE_SHORT);
-    
+
     if (frame == NULL)
     {
         MBUS_ERROR("%s: failed to allocate mbus frame.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
-    frame->control = MBUS_CONTROL_MASK_REQ_UD2 | 
-                     MBUS_CONTROL_MASK_DIR_M2S | 
-                     MBUS_CONTROL_MASK_FCV     | 
+
+    frame->control = MBUS_CONTROL_MASK_REQ_UD2 |
+                     MBUS_CONTROL_MASK_DIR_M2S |
+                     MBUS_CONTROL_MASK_FCV     |
                      MBUS_CONTROL_MASK_FCB;
-                     
-    frame->address = address; 
-    
+
+    frame->address = address;
+
     //
     // continue to read until no more records are available (usually only one
     // reply frame, but can be more for so-called multi-telegram replies)
     //
     next_frame = reply;
-    
+
     memset((void *)&reply_data, 0, sizeof(mbus_frame_data));
-    
+
     while (more_frames)
     {
-        if (retry > handle->max_retry)
+        if (retry > handle->max_data_retry)
         {
             // Give up
             retval = 1;
             break;
         }
-    
+
         if (debug)
             printf("%s: debug: sending request frame\n", __PRETTY_FUNCTION__);
-        
+
         if (mbus_send_frame(handle, frame) == -1)
         {
             MBUS_ERROR("%s: failed to send mbus frame.\n", __PRETTY_FUNCTION__);
             retval = -1;
             break;
         }
-           
+
         if (debug)
             printf("%s: debug: receiving response frame #%d\n", __PRETTY_FUNCTION__, frame_count);
-            
+
         result = mbus_recv_frame(handle, next_frame);
 
         if (result == MBUS_RECV_RESULT_OK)
@@ -1899,26 +2048,26 @@ mbus_sendrecv_request(mbus_handle *handle, int address, mbus_frame *reply, int m
             retval = 1;
             break;
         }
-        
+
         frame_count++;
-    
+
         //
         // We need to parse the data in the received frame to be able to tell
         // if more records are available or not.
-        //       
+        //
         if (mbus_frame_data_parse(next_frame, &reply_data) == -1)
         {
             MBUS_ERROR("%s: M-bus data parse error.\n", __PRETTY_FUNCTION__);
             retval = 1;
             break;
         }
-        
+
         //
         // Continue a cycle of sending requests and reading replies until the
-        // reply do not have DIF=0x1F in the last record (which signals that 
+        // reply do not have DIF=0x1F in the last record (which signals that
         // more records are available.
         //
-        
+
         if (reply_data.type != MBUS_DATA_TYPE_VARIABLE)
         {
             // only single frame replies for FIXED type frames
@@ -1927,27 +2076,27 @@ mbus_sendrecv_request(mbus_handle *handle, int address, mbus_frame *reply, int m
         else
         {
             more_frames = 0;
-    
-            if (reply_data.data_var.more_records_follow && 
+
+            if (reply_data.data_var.more_records_follow &&
                 ((max_frames > 0) && (frame_count < max_frames))) // only readout max_frames
             {
                 if (debug)
                     printf("%s: debug: expecting more frames\n", __PRETTY_FUNCTION__);
-                
+
                 more_frames = 1;
-                
+
                 // allocate new frame and increment next_frame pointer
                 next_frame->next = mbus_frame_new(MBUS_FRAME_TYPE_ANY);
-                
+
                 if (next_frame->next == NULL)
                 {
                     MBUS_ERROR("%s: failed to allocate mbus frame.\n", __PRETTY_FUNCTION__);
                     retval = -1;
                     more_frames = 0;
                 }
-                
+
                 next_frame = next_frame->next;
-                
+
                 // toogle FCB bit
                 frame->control ^= MBUS_CONTROL_MASK_FCB;
             }
@@ -1957,12 +2106,12 @@ mbus_sendrecv_request(mbus_handle *handle, int address, mbus_frame *reply, int m
                     printf("%s: debug: no more frames\n", __PRETTY_FUNCTION__);
             }
         }
-        
+
         if (reply_data.data_var.record)
         {
             // free's up the whole list
-            mbus_data_record_free(reply_data.data_var.record); 
-        }        
+            mbus_data_record_free(reply_data.data_var.record);
+        }
     }
 
     mbus_frame_free(frame);
@@ -1978,36 +2127,36 @@ mbus_send_ping_frame(mbus_handle *handle, int address, char purge_response)
 {
     int retval = 0;
     mbus_frame *frame;
-    
+
     if (mbus_is_primary_address(address) == 0)
     {
         MBUS_ERROR("%s: invalid address %d\n", __PRETTY_FUNCTION__, address);
         return 1;
     }
-        
+
     frame = mbus_frame_new(MBUS_FRAME_TYPE_SHORT);
-    
+
     if (frame == NULL)
     {
         MBUS_ERROR("%s: failed to allocate mbus frame.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
+
     frame->control  = MBUS_CONTROL_MASK_SND_NKE | MBUS_CONTROL_MASK_DIR_M2S;
-    frame->address  = address; 
-   
+    frame->address  = address;
+
     if (mbus_send_frame(handle, frame) == -1)
     {
         MBUS_ERROR("%s: failed to send mbus frame.\n", __PRETTY_FUNCTION__);
         mbus_frame_free(frame);
         return -1;
     }
-    
+
     if (purge_response)
     {
         mbus_purge_frames(handle);
     }
-	
+
     mbus_frame_free(frame);
     return retval;
 }
@@ -2035,14 +2184,14 @@ mbus_select_secondary_address(mbus_handle * handle, const char *mask)
                    mbus_error_str());
         return MBUS_PROBE_ERROR;
     }
-    
+
     memset((void *)&reply, 0, sizeof(mbus_frame));
     ret = mbus_recv_frame(handle, &reply);
 
     if (ret == MBUS_RECV_RESULT_TIMEOUT)
     {
         return MBUS_PROBE_NOTHING;
-    }    
+    }
 
     if (ret == MBUS_RECV_RESULT_INVALID)
     {
@@ -2058,23 +2207,23 @@ mbus_select_secondary_address(mbus_handle * handle, const char *mask)
         {
             return MBUS_PROBE_COLLISION;
         }
-        
+
         return MBUS_PROBE_SINGLE;
     }
-    
+
     MBUS_ERROR("%s: Unexpected reply for address [%s].\n", __PRETTY_FUNCTION__, mask);
 
     return MBUS_PROBE_NOTHING;
 }
 
 //------------------------------------------------------------------------------
-// Prove for the presence of a device(s) using the supplied secondary address 
+// Probe for the presence of a device(s) using the supplied secondary address
 // (mask).
 //------------------------------------------------------------------------------
-int 
-mbus_probe_secondary_address(mbus_handle * handle, const char *mask, char *matching_addr)
+int
+mbus_probe_secondary_address(mbus_handle *handle, const char *mask, char *matching_addr)
 {
-    int ret;
+    int ret, i;
     mbus_frame reply;
 
     if (mask == NULL || matching_addr == NULL || strlen(mask) != 16)
@@ -2082,53 +2231,79 @@ mbus_probe_secondary_address(mbus_handle * handle, const char *mask, char *match
         MBUS_ERROR("%s: Invalid address masks.\n", __PRETTY_FUNCTION__);
         return MBUS_PROBE_ERROR;
     }
-    
-    ret = mbus_select_secondary_address(handle, mask);
-    
-    if (ret == MBUS_PROBE_SINGLE)
+
+    for (i = 0; i <= handle->max_search_retry; i++)
     {
-        /* send a data request command to find out the full address */
-        if (mbus_send_request_frame(handle, MBUS_ADDRESS_NETWORK_LAYER) == -1)
-        {
-            MBUS_ERROR("%s: Failed to send request to selected secondary device [mask %s]: %s.\n",
-                       __PRETTY_FUNCTION__,
-                       mask,
-                       mbus_error_str());
-            return MBUS_PROBE_ERROR;
-        }
-        
-        memset((void *)&reply, 0, sizeof(mbus_frame));
-        ret = mbus_recv_frame(handle, &reply);
+        ret = mbus_select_secondary_address(handle, mask);
 
-        if (ret == MBUS_RECV_RESULT_TIMEOUT)
-        {
-            return MBUS_PROBE_NOTHING;
-        }
+        if (ret == MBUS_PROBE_SINGLE)
+	    {
+	        /* send a data request command to find out the full address */
+	        if (mbus_send_request_frame(handle, MBUS_ADDRESS_NETWORK_LAYER) == -1)
+	        {
+	            MBUS_ERROR("%s: Failed to send request to selected secondary device [mask %s]: %s.\n",
+	                       __PRETTY_FUNCTION__,
+	                       mask,
+	                       mbus_error_str());
+	            return MBUS_PROBE_ERROR;
+	        }
 
-        if (ret == MBUS_RECV_RESULT_INVALID)
-        {
-            return MBUS_PROBE_COLLISION;
-        }
+            memset((void *)&reply, 0, sizeof(mbus_frame));
+            ret = mbus_recv_frame(handle, &reply);
 
-        if (mbus_frame_type(&reply) != MBUS_FRAME_TYPE_ACK)
-        {
-            snprintf(matching_addr, 17, "%s", mbus_frame_get_secondary_address(&reply));
-
-            if (_mbus_found_event)
+            if (ret == MBUS_RECV_RESULT_TIMEOUT)
             {
-                _mbus_found_event(handle,&reply);
+                return MBUS_PROBE_NOTHING;
             }
 
-            return MBUS_PROBE_SINGLE;
-        }
-        else
-        {
-            MBUS_ERROR("%s: Unexpected reply for address [mask %s]. Got ACK, expected data.\n",
-                       __PRETTY_FUNCTION__, mask);
-            return MBUS_PROBE_NOTHING;
-        }
-    }
-    
+            if (ret == MBUS_RECV_RESULT_INVALID)
+            {
+                /* check for more data (collision) */
+                mbus_purge_frames(handle);
+                return MBUS_PROBE_COLLISION;
+	        }
+
+            /* check for more data (collision) */
+            if (mbus_purge_frames(handle))
+            {
+                return MBUS_PROBE_COLLISION;
+	        }
+
+            if (mbus_frame_type(&reply) == MBUS_FRAME_TYPE_LONG)
+            {
+                char *addr = mbus_frame_get_secondary_address(&reply);
+
+                if (addr == NULL)
+                {
+                    // show error message, but procede with scan
+                    MBUS_ERROR("Failed to generate secondary address from M-Bus reply frame: %s\n", 
+                               mbus_error_str());
+                    return MBUS_PROBE_NOTHING;
+                }
+
+	            snprintf(matching_addr, 17, "%s", addr);
+
+                if (handle->found_event)
+                {
+                    handle->found_event(handle,&reply);
+                }
+
+                return MBUS_PROBE_SINGLE;
+	        }
+	        else
+	        {
+	            MBUS_ERROR("%s: Unexpected reply for address [mask %s]. Expected long frame.\n",
+	                       __PRETTY_FUNCTION__, mask);
+	            return MBUS_PROBE_NOTHING;
+	        }
+	    }
+	    else if ((ret == MBUS_PROBE_ERROR) ||
+	             (ret == MBUS_PROBE_COLLISION))
+	    {
+	    	break;
+	    }
+	}
+
     return ret;
 }
 
@@ -2154,7 +2329,6 @@ int mbus_read_slave(mbus_handle * handle, mbus_address *address, mbus_frame * re
     {
         /* secondary addressing */
         int probe_ret;
-        char matching_addr[16];
 
         if (address->secondary == NULL)
         {
@@ -2163,7 +2337,7 @@ int mbus_read_slave(mbus_handle * handle, mbus_address *address, mbus_frame * re
             return -1;
         }
 
-        probe_ret = mbus_probe_secondary_address(handle, address->secondary, matching_addr);
+        probe_ret = mbus_select_secondary_address(handle, address->secondary);
 
         if (probe_ret == MBUS_PROBE_COLLISION)
         {
@@ -2184,7 +2358,7 @@ int mbus_read_slave(mbus_handle * handle, mbus_address *address, mbus_frame * re
             MBUS_ERROR("%s: Failed to probe secondary address [%s].\n",
                        __PRETTY_FUNCTION__,
                        address->secondary);
-            return -1;    
+            return -1;
         }
         /* else MBUS_PROBE_SINGLE */
 
@@ -2194,14 +2368,14 @@ int mbus_read_slave(mbus_handle * handle, mbus_address *address, mbus_frame * re
                        __PRETTY_FUNCTION__);
             return -1;
         }
-    } 
+    }
 
     if (mbus_recv_frame(handle, reply) != 0)
     {
         MBUS_ERROR("%s: Failed to receive M-Bus response frame.\n",
                    __PRETTY_FUNCTION__);
         return -1;
-    }    
+    }
 
     return 0;
 }
@@ -2214,7 +2388,7 @@ mbus_scan_2nd_address_range(mbus_handle * handle, int pos, char *addr_mask)
 {
     int i, i_start, i_end, probe_ret;
     char *mask, matching_mask[17];
-    
+
     if (handle == NULL || addr_mask == NULL)
     {
         MBUS_ERROR("%s: Invalid handle or address mask.\n", __PRETTY_FUNCTION__);
@@ -2223,7 +2397,7 @@ mbus_scan_2nd_address_range(mbus_handle * handle, int pos, char *addr_mask)
 
     if (strlen(addr_mask) != 16)
     {
-        fprintf(stderr, "%s: Illegal address mask [%s]. Not 16 characters long.\n", __PRETTY_FUNCTION__, addr_mask);
+        MBUS_ERROR("%s: Illegal address mask [%s]. Not 16 characters long.\n", __PRETTY_FUNCTION__, addr_mask);
         return -1;
     }
 
@@ -2234,12 +2408,13 @@ mbus_scan_2nd_address_range(mbus_handle * handle, int pos, char *addr_mask)
 
     if ((mask = strdup(addr_mask)) == NULL)
     {
-        fprintf(stderr, "%s: Failed to allocate local copy of the address mask.\n", __PRETTY_FUNCTION__);
+        MBUS_ERROR("%s: Failed to allocate local copy of the address mask.\n", __PRETTY_FUNCTION__);
         return -1;
     }
-    
+
     if (mask[pos] == 'f' || mask[pos] == 'F')
     {
+        // mask[pos] is a wildcard -> enumerate all 0..9 at this position
         i_start = 0;
         i_end   = 9;
     }
@@ -2247,44 +2422,50 @@ mbus_scan_2nd_address_range(mbus_handle * handle, int pos, char *addr_mask)
     {
         if (pos < 15)
         {
+            // mask[pos] is not a wildcard -> don't iterate, recursively check pos+1
             mbus_scan_2nd_address_range(handle, pos+1, mask);
         }
         else
         {
+            // .. except if we're at the last pos (==15) and this isn't a wildcard we still need to send the probe
             i_start = (int)(mask[pos] - '0');
             i_end   = (int)(mask[pos] - '0');
         }
     }
 
-    for (i = 0; i <= 9; i++)
+    // skip the scanning if we're returning from the (pos < 15) case above
+    if (mask[pos] == 'f' || mask[pos] == 'F' || pos == 15)
     {
-        mask[pos] = '0'+i;
-
-        if (_mbus_scan_progress)
-            _mbus_scan_progress(handle,mask);
-    
-        probe_ret = mbus_probe_secondary_address(handle, mask, matching_mask);
-
-        if (probe_ret == MBUS_PROBE_SINGLE)
+        for (i = i_start; i <= i_end; i++)
         {
-            if (!_mbus_found_event)
+            mask[pos] = '0'+i;
+
+            if (handle->scan_progress)
+                handle->scan_progress(handle,mask);
+
+            probe_ret = mbus_probe_secondary_address(handle, mask, matching_mask);
+
+            if (probe_ret == MBUS_PROBE_SINGLE)
             {
-                printf("Found a device on secondary address %s [using address mask %s]\n", matching_mask, mask);
+                if (!handle->found_event)
+                {
+                    printf("Found a device on secondary address %s [using address mask %s]\n", matching_mask, mask);
+                }
             }
-        }
-        else if (probe_ret == MBUS_PROBE_COLLISION)
-        {
-            // collision, more than one device matching, restrict the search mask further
-            mbus_scan_2nd_address_range(handle, pos+1, mask);
-        }
-        else if (probe_ret == MBUS_PROBE_NOTHING)
-        {
-             // nothing... move on to next address mask
-        }
-        else // MBUS_PROBE_ERROR
-        {
-            fprintf(stderr, "%s: Failed to probe secondary address [%s].\n", __PRETTY_FUNCTION__, mask);
-            return -1;    
+            else if (probe_ret == MBUS_PROBE_COLLISION)
+            {
+                // collision, more than one device matching, restrict the search mask further
+                mbus_scan_2nd_address_range(handle, pos+1, mask);
+            }
+            else if (probe_ret == MBUS_PROBE_NOTHING)
+            {
+                 // nothing... move on to next address mask
+            }
+            else // MBUS_PROBE_ERROR
+            {
+                MBUS_ERROR("%s: Failed to probe secondary address [%s].\n", __PRETTY_FUNCTION__, mask);
+                return -1;
+            }
         }
     }
 
@@ -2298,43 +2479,43 @@ mbus_scan_2nd_address_range(mbus_handle * handle, int pos, char *addr_mask)
 // - whitespaces will be ignored
 //------------------------------------------------------------------------------
 size_t
-mbus_hex2bin(u_char * dst, size_t dst_len, const u_char * src, size_t src_len)
+mbus_hex2bin(unsigned char * dst, size_t dst_len, const unsigned char * src, size_t src_len)
 {
     size_t i, result = 0;
     unsigned long val;
-    u_char *ptr, *end, buf[3];
-    
+    unsigned char *ptr, *end, buf[3];
+
     if (!src || !dst)
     {
         return 0;
     }
-    
+
     memset(buf, 0, sizeof(buf));
     memset(dst, 0, dst_len);
-    
+
     for (i = 0; i+1 < src_len; i++)
     {
         // ignore whitespace
         if (isspace(src[i]))
             continue;
-    
+
         buf[0] = src[i];
         buf[1] = src[++i];
-        
+
         end = buf;
         ptr = end;
         val = strtoul(ptr, (char **)&end, 16);
-        
-        // abort at non hex value 
+
+        // abort at non hex value
         if (ptr == end)
             break;
-            
+
         // abort at end of buffer
         if (result >= dst_len)
             break;
-            
-        dst[result++] = (u_char) val;
+
+        dst[result++] = (unsigned char) val;
     }
-    
+
     return result;
 }

@@ -2,7 +2,7 @@
 // Copyright (C) 2011, Robert Johansson, Raditex AB
 // All rights reserved.
 //
-// rSCADA 
+// rSCADA
 // http://www.rSCADA.se
 // info@rscada.se
 //
@@ -22,10 +22,10 @@ int
 main(int argc, char **argv)
 {
     char *host, *addr_mask = NULL;
-    int port;
+    long port;
     mbus_handle *handle = NULL;
     mbus_frame *frame = NULL, reply;
-    
+
     memset((void *)&reply, 0, sizeof(mbus_frame));
 
     if (argc != 4 && argc != 3)
@@ -35,9 +35,9 @@ main(int argc, char **argv)
         fprintf(stderr, "\t'FFFFFFFFFFFFFFFF' where F is a wildcard character\n");
         return 0;
     }
- 
-    host = argv[1];   
-    port = atoi(argv[2]);
+
+    host = argv[1];
+    port = atol(argv[2]);
     if (argc == 4)
     {
         addr_mask = strdup(argv[3]);
@@ -46,10 +46,16 @@ main(int argc, char **argv)
     {
         addr_mask = strdup("FFFFFFFFFFFFFFFF");
     }
-    
+
     if (addr_mask == NULL)
     {
         fprintf(stderr, "Failed to allocate address mask.\n");
+        return 1;
+    }
+
+    if ((port < 0) || (port > 0xFFFF))
+    {
+        fprintf(stderr, "Invalid port: %ld\n", port);
         return 1;
     }
 
@@ -76,7 +82,7 @@ main(int argc, char **argv)
     //
     if (debug)
         printf("%s: debug: sending init frame #1\n", __PRETTY_FUNCTION__);
-    
+
     if (mbus_send_ping_frame(handle, MBUS_ADDRESS_NETWORK_LAYER, 1) == -1)
     {
         free(addr_mask);
@@ -88,7 +94,7 @@ main(int argc, char **argv)
     //
     if (debug)
         printf("%s: debug: sending init frame #2\n", __PRETTY_FUNCTION__);
-        
+
     if (mbus_send_ping_frame(handle, MBUS_ADDRESS_BROADCAST_NOREPLY, 1) == -1)
     {
         free(addr_mask);

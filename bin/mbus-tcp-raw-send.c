@@ -2,7 +2,7 @@
 // Copyright (C) 2012, Robert Johansson, Raditex AB
 // All rights reserved.
 //
-// rSCADA 
+// rSCADA
 // http://www.rSCADA.se
 // info@rscada.se
 //
@@ -26,40 +26,41 @@ main(int argc, char **argv)
     mbus_handle *handle = NULL;
 
     char *host, *addr_str, matching_addr[16], *file = NULL;
-    int port, address, result;
+    long port;
+    int address, result;
     FILE *fp = NULL;
     size_t buff_len, len;
-  	u_char raw_buff[4096], buff[4096];
- 
+  	unsigned char raw_buff[4096], buff[4096];
+
     memset((void *)&reply, 0, sizeof(mbus_frame));
     memset((void *)&reply_data, 0, sizeof(mbus_frame_data));
-     
+
     if (argc == 4)
     {
-        host = argv[1];   
-        port = atoi(argv[2]);
+        host = argv[1];
+        port = atol(argv[2]);
         addr_str = argv[3];
         debug = 0;
     }
     else if (argc == 5 && strcmp(argv[1], "-d") == 0)
     {
-        host = argv[2];   
-        port = atoi(argv[3]);
+        host = argv[2];
+        port = atol(argv[3]);
         addr_str = argv[4];
         debug = 1;
     }
     else if (argc == 5)
     {
-        host = argv[1];   
-        port = atoi(argv[2]);
+        host = argv[1];
+        port = atol(argv[2]);
         addr_str = argv[3];
         file = argv[4];
         debug = 0;
-    }    
+    }
     else if (argc == 6 && strcmp(argv[1], "-d") == 0)
     {
-        host = argv[2];   
-        port = atoi(argv[3]);
+        host = argv[2];
+        port = atol(argv[3]);
         addr_str = argv[4];
         file = argv[5];
         debug = 1;
@@ -71,17 +72,23 @@ main(int argc, char **argv)
         fprintf(stderr, "    optional argument file for file. if omitted read from stdin\n");
         return 0;
     }
-    
-    if (debug)
+
+    if ((port < 0) || (port > 0xFFFF))
     {
-        mbus_register_send_event(&mbus_dump_send_event);
-        mbus_register_recv_event(&mbus_dump_recv_event);
+        fprintf(stderr, "Invalid port: %ld\n", port);
+        return 1;
     }
-    
+
     if ((handle = mbus_context_tcp(host, port)) == NULL)
     {
         fprintf(stderr, "Could not initialize M-Bus context: %s\n",  mbus_error_str());
         return 1;
+    }
+    
+    if (debug)
+    {
+        mbus_register_send_event(handle, &mbus_dump_send_event);
+        mbus_register_recv_event(handle, &mbus_dump_recv_event);
     }
 
     if (mbus_connect(handle) == -1)
@@ -110,16 +117,16 @@ main(int argc, char **argv)
         else if (ret == MBUS_PROBE_ERROR)
         {
             fprintf(stderr, "%s: Error: Failed to select secondary address [%s].\n", __PRETTY_FUNCTION__, addr_str);
-            return 1;    
+            return 1;
         }
         address = MBUS_ADDRESS_NETWORK_LAYER;
-    } 
+    }
     else
     {
         // primary addressing
         address = atoi(addr_str);
-    }   
-    
+    }
+
     //
     // read hex data from file or stdin
     //
@@ -143,14 +150,14 @@ main(int argc, char **argv)
     {
         fclose(fp);
     }
-    
+
     buff_len = mbus_hex2bin(buff,sizeof(buff),raw_buff,sizeof(raw_buff));
-    
+
     //
     // attempt to parse the input data
     //
     result = mbus_parse(&request, buff, buff_len);
-    
+
     if (result < 0)
     {
         fprintf(stderr, "mbus_parse: %s\n", mbus_error_str());
@@ -160,8 +167,8 @@ main(int argc, char **argv)
     {
         fprintf(stderr, "mbus_parse: need %d more bytes\n", result);
         return 1;
-    }    
-    
+    }
+
     //
     // send the request
     //
@@ -169,8 +176,8 @@ main(int argc, char **argv)
     {
         fprintf(stderr, "Failed to send mbus frame: %s\n", mbus_error_str());
         return 1;
-    }    
-       
+    }
+
     //
     // this should be option:
     //

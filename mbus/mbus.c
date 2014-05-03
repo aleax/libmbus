@@ -2,13 +2,13 @@
 // Copyright (C) 2010, Raditex AB
 // All rights reserved.
 //
-// rSCADA 
+// rSCADA
 // http://www.rSCADA.se
 // info@rscada.se
 //
 //------------------------------------------------------------------------------
 
-#include <mbus/mbus-protocol.h>
+#include "mbus-protocol.h"
 
 //
 //

@@ -2,7 +2,7 @@
 // Copyright (C) 2010-2012, Robert Johansson and contributors, Raditex AB
 // All rights reserved.
 //
-// rSCADA 
+// rSCADA
 // http://www.rSCADA.se
 // info@rscada.se
 //
@@ -27,20 +27,20 @@ main(int argc, char **argv)
     mbus_frame reply;
     char *device;
     int address, ret;
-    int source_baudrate = 9600, target_baudrate;
+    long source_baudrate = 9600, target_baudrate;
 
     if (argc == 4)
     {
         device = argv[1];
         address = atoi(argv[2]);
-        target_baudrate = atoi(argv[3]);
+        target_baudrate = atol(argv[3]);
     }
     else if (argc == 6 && strcmp(argv[1], "-b") == 0)
     {
-        source_baudrate = atoi(argv[2]);
+        source_baudrate = atol(argv[2]);
         device = argv[3];
         address = atoi(argv[4]);
-        target_baudrate = atoi(argv[5]);
+        target_baudrate = atol(argv[5]);
     }
     else
     {
@@ -59,7 +59,7 @@ main(int argc, char **argv)
         fprintf(stderr,"Failed to setup connection to M-bus gateway\n");
         return 1;
     }
-    
+
     if (mbus_serial_set_baudrate(handle, source_baudrate) == -1)
     {
         fprintf(stderr,"Failed to set baud rate.\n");
@@ -69,11 +69,11 @@ main(int argc, char **argv)
     if (mbus_send_switch_baudrate_frame(handle, address, target_baudrate) == -1)
     {
         fprintf(stderr,"Failed to send switch baudrate frame: %s\n", mbus_error_str());
-        return 1; 
+        return 1;
     }
 
-    ret = mbus_recv_frame(handle, &reply);  
-    
+    ret = mbus_recv_frame(handle, &reply);
+
     if (ret == MBUS_RECV_RESULT_TIMEOUT)
     {
         fprintf(stderr,"No reply from device\n");
@@ -86,9 +86,9 @@ main(int argc, char **argv)
     }
     else
     {
-        printf("Switched baud rate of device to %d\n", target_baudrate);
+        printf("Switched baud rate of device to %lu\n", target_baudrate);
     }
-    
+
     mbus_disconnect(handle);
     mbus_context_free(handle);
     return 0;

@@ -4,6 +4,7 @@
         <Id>26718590</Id>
         <Manufacturer>HYD</Manufacturer>
         <Version>40</Version>
+        <ProductName>ABB F95 Typ US770</ProductName>
         <Medium>Heat: Outlet</Medium>
         <AccessNumber>115</AccessNumber>
         <Status>50</Status>
@@ -90,6 +91,7 @@
 
     <DataRecord id="13">
         <Function>Instantaneous value</Function>
+        <StorageNumber>0</StorageNumber>
         <Unit>Operating time (hours)</Unit>
         <Value>86553</Value>
     </DataRecord>

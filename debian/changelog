@@ -1,8 +1,8 @@
-libmbus (0.8.0+nmu7) UNRELEASED; urgency=low
+libmbus (0.8.0.9999~git20140516.fa5bff75-trusty1) stable; urgency=low
 
   * Non-maintainer upload.
 
- -- Alexey Bondarchuk <alexey.bondarchuk@aleax.me>  Fri, 18 Jan 2013 10:41:24 +0200
+ -- Alexey Bondarchuk <alexey.bondarchuk@aleax.me>  Fri, 16 May 2014 16:54:06 +0300
 
 libmbus (0.8.0+nmu6) UNRELEASED; urgency=low
 

@@ -10,6 +10,7 @@ override_dh_strip:
 	dh_strip --dbg-package=libmbus1-dbg
 
 override_dh_autoreconf:
+	rm -rf m4
 	mkdir m4
 	dh_autoreconf
 
